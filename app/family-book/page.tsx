@@ -5,7 +5,7 @@ import FlipBook from "@/components/book/FlipBook";
 import { bookChaptersData } from "@/data/bookChapters";
 import { StoryChapter } from "@/types/story";
 
-export const revalidate = 0; // Ensure fresh data on each visit
+export const dynamic = "force-dynamic";
 
 export default async function FamilyBookPage() {
   let chapters: StoryChapter[] = [];

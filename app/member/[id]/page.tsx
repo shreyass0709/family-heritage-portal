@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { User, Calendar, Briefcase, GraduationCap, Trophy, Clock, ArrowLeft } from "lucide-react";
 import { TimelineEvent, Achievement, FamilyMember } from "@/types/member";
 
-export const revalidate = 0; // Dynamic rendering
+export const dynamic = "force-dynamic";
 
 // Helper to calculate age relative to 2026
 const calculateAge = (birthDateStr: string, deathDateStr?: string | null) => {

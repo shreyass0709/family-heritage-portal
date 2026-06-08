@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import { Album } from "@/types/gallery";
 
-export const revalidate = 0; // Dynamic server side generation
+export const dynamic = "force-dynamic";
 
 export default async function GalleryPage() {
   const dbAlbums = await prisma.album.findMany({

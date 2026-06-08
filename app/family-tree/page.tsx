@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import TreeContainer from "./TreeContainer";
 import { FamilyMember } from "@/types/member";
 
-export const revalidate = 0; // Dynamic server side generation
+export const dynamic = "force-dynamic";
 
 export default async function FamilyTreePage() {
   const dbMembers = await prisma.familyMember.findMany({

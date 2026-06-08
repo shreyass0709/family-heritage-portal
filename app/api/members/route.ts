@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { uploadImage } from "@/lib/cloudinary";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const members = await prisma.familyMember.findMany({

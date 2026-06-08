@@ -4,6 +4,8 @@ import { uploadImage } from "@/lib/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
     // Authenticate the request

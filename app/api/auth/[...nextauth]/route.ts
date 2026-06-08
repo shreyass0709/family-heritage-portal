@@ -3,6 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import { comparePassword } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({

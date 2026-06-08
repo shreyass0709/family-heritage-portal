@@ -1,0 +1,66 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   // "ADMIN", "MEMBER", "GUEST"
+  photo     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FamilyMember {
+  id           String   @id @default(uuid())
+  name         String
+  gender       String   // "MALE", "FEMALE", "OTHER"
+  birthDate    String
+  deathDate    String?
+  occupation   String?
+  education    String?
+  bio          String?
+  photo        String?
+  fatherId     String?
+  motherId     String?
+  spouseId     String?
+  timeline     String   // JSON string of events: [{ "year": "2000", "title": "Born", "description": "Born in Mangalore" }]
+  achievements String   // JSON string of achievements: [{ "title": "Award name", "description": "details" }]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Album {
+  id          String   @id @default(uuid())
+  title       String
+  category    String   // "Functions", "Weddings", "Birthdays", "Festivals", "Trips", "Recent"
+  familyGroup String?  // "Family A", "Family B"
+  photos      Photo[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Photo {
+  id        String   @id @default(uuid())
+  albumId   String
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  imageUrl  String
+  caption   String?
+  createdAt DateTime @default(now())
+}
+
+model StoryChapter {
+  id        String   @id @default(uuid())
+  chapter   Int      @unique
+  title     String
+  content   String   // Markdown or HTML text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

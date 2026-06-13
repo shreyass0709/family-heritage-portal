@@ -5,6 +5,7 @@ import Providers from "@/components/Providers";
 import FloatingParticles from "@/components/ui/FloatingParticles";
 import CustomCursor from "@/components/ui/CustomCursor";
 import EntranceReveal from "@/components/ui/EntranceReveal";
+import { cookies } from "next/headers";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -21,11 +22,14 @@ export const metadata: Metadata = {
   description: "Rooted in History, Growing for Generations. A digital space to connect, explore our ancestral roots, share photographs, and read our migration history.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const showReveal = cookieStore.get("showReveal")?.value === "true";
+
   return (
     <html
       lang="en"
@@ -35,7 +39,7 @@ export default function RootLayout({
         <FloatingParticles />
         <CustomCursor />
         <Providers>
-          <EntranceReveal />
+          <EntranceReveal initialShow={showReveal} />
           {children}
         </Providers>
       </body>

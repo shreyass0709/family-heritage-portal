@@ -5,41 +5,29 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
-export default function EntranceReveal() {
+export default function EntranceReveal({ initialShow = false }: { initialShow?: boolean }) {
   const { status } = useSession();
   const pathname = usePathname();
   
-  // Initialize gates to closed (show = true) if we just logged in and need a reveal
-  const [show, setShow] = useState(() => {
-    if (typeof window !== "undefined" && pathname !== "/login") {
-      return sessionStorage.getItem("showReveal") === "true";
-    }
-    return false;
-  });
-  const [isMounted, setIsMounted] = useState(false);
+  // Initialize gates to closed (show = true) if server says so
+  const [show, setShow] = useState(initialShow);
 
   useEffect(() => {
-    const mountTimer = setTimeout(() => {
-      setIsMounted(true);
-    }, 0);
-
-    return () => clearTimeout(mountTimer);
-  }, []);
-
-  useEffect(() => {
-    if (!isMounted || pathname === "/login") {
+    if (pathname === "/login") {
       setShow(false);
+      // Clear cookie immediately if we go back to login page
+      document.cookie = "showReveal=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
       return;
     }
 
     let animTimer: NodeJS.Timeout;
 
     // Check if we need to trigger the reveal
-    const needsReveal = sessionStorage.getItem("showReveal") === "true";
+    const needsReveal = show || document.cookie.includes("showReveal=true");
 
     if (needsReveal && status === "authenticated") {
-      // Clear the sessionStorage flag so it doesn't trigger again
-      sessionStorage.removeItem("showReveal");
+      // Clear the cookie so it doesn't trigger again
+      document.cookie = "showReveal=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
       sessionStorage.setItem("hasShownWelcome", "true");
       
       // Ensure gates are shown
@@ -50,17 +38,16 @@ export default function EntranceReveal() {
         setShow(false);
       }, 2600); // 1.4s delay + 1.0s animation + 0.2s buffer
     } else if (status === "unauthenticated") {
-      sessionStorage.removeItem("showReveal");
-      sessionStorage.removeItem("hasShownWelcome");
+      document.cookie = "showReveal=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
       setShow(false);
     }
 
     return () => {
       if (animTimer) clearTimeout(animTimer);
     };
-  }, [status, isMounted, pathname]);
+  }, [status, pathname, show]);
 
-  if (!isMounted || !show || pathname === "/login") return null;
+  if (!show || pathname === "/login") return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden pointer-events-none select-none">

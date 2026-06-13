@@ -53,6 +53,7 @@ function LoginForm() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("tabSessionActive", "true");
         sessionStorage.setItem("showReveal", "true");
+        document.cookie = "showReveal=true; path=/; SameSite=Lax";
       }
       await signIn("google", { callbackUrl: "/" });
     } catch (err) {
@@ -80,6 +81,7 @@ function LoginForm() {
           sessionStorage.setItem("tabSessionActive", "true");
           sessionStorage.setItem("showReveal", "true");
           document.cookie = "wasLoggedIn=true; path=/; SameSite=Lax";
+          document.cookie = "showReveal=true; path=/; SameSite=Lax";
         }
         window.location.href = "/";
       }

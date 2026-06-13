@@ -45,8 +45,6 @@ function LoginForm() {
     setIsLoading(true);
     setError(null);
     try {
-      // Set the reveal flag for entrance animation on successful redirect back
-      sessionStorage.setItem("showReveal", "true");
       await signIn("google", { callbackUrl });
     } catch (err) {
       setError("Failed to initialize Google sign-in. Please try again.");
@@ -69,7 +67,6 @@ function LoginForm() {
       if (result?.error) {
         setError(result.error);
       } else {
-        sessionStorage.setItem("showReveal", "true");
         router.push(callbackUrl);
         router.refresh();
       }

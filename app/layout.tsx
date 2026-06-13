@@ -34,8 +34,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#060913] text-slate-100 font-sans relative">
         <FloatingParticles />
         <CustomCursor />
-        <EntranceReveal />
         <Providers>
+          <EntranceReveal />
           {children}
         </Providers>
       </body>

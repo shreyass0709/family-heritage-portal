@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 
 export default function EntranceReveal() {
-  const pathname = usePathname();
+  const { status } = useSession();
   const [show, setShow] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -14,31 +14,38 @@ export default function EntranceReveal() {
       setIsMounted(true);
     }, 0);
 
-    // Check sessionStorage to see if we just logged in
-    const needsReveal = sessionStorage.getItem("showReveal") === "true";
+    return () => clearTimeout(mountTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     let animTimer: NodeJS.Timeout;
     let showTimer: NodeJS.Timeout;
 
-    if (needsReveal) {
-      showTimer = setTimeout(() => {
-        setShow(true);
-      }, 0);
-      sessionStorage.removeItem("showReveal");
+    if (status === "authenticated") {
+      const hasShownWelcome = sessionStorage.getItem("hasShownWelcome") === "true";
+      if (!hasShownWelcome) {
+        showTimer = setTimeout(() => {
+          setShow(true);
+        }, 0);
+        sessionStorage.setItem("hasShownWelcome", "true");
 
-      // Cleanly unmount the component after the gates finish sliding open
-      animTimer = setTimeout(() => {
-        setShow(false);
-      }, 2600); // 1.4s delay + 1.0s animation + 0.2s buffer
-      
-      return () => {
-        clearTimeout(mountTimer);
-        clearTimeout(showTimer);
-        if (animTimer) clearTimeout(animTimer);
-      };
+        // Cleanly unmount the component after the gates finish sliding open
+        animTimer = setTimeout(() => {
+          setShow(false);
+        }, 2600); // 1.4s delay + 1.0s animation + 0.2s buffer
+      }
+    } else if (status === "unauthenticated") {
+      sessionStorage.removeItem("hasShownWelcome");
+      setShow(false);
     }
 
-    return () => clearTimeout(mountTimer);
-  }, [pathname]);
+    return () => {
+      if (showTimer) clearTimeout(showTimer);
+      if (animTimer) clearTimeout(animTimer);
+    };
+  }, [status, isMounted]);
 
   if (!isMounted || !show) return null;
 

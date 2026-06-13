@@ -67,8 +67,7 @@ function LoginForm() {
       if (result?.error) {
         setError(result.error);
       } else {
-        router.push(callbackUrl);
-        router.refresh();
+        window.location.href = callbackUrl;
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

@@ -1,52 +1,40 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
-import { comparePassword } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Please enter your email and password");
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase() }
-        });
-
-        if (!user) {
-          throw new Error("No account found with this email");
-        }
-
-        const isValid = comparePassword(credentials.password, user.password);
-
-        if (!isValid) {
-          throw new Error("Incorrect password");
-        }
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          image: user.photo
-        };
-      }
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     })
   ],
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as { role?: string }).role;
+      if (user && user.email) {
+        let dbUser = await prisma.user.findUnique({
+          where: { email: user.email.toLowerCase() }
+        });
+        
+        if (!dbUser) {
+          const emailLower = user.email.toLowerCase();
+          const isAdmin = emailLower === "shreyass0709@gmail.com" || emailLower === "madubana2005@poojari.com" || emailLower.includes("admin");
+          
+          dbUser = await prisma.user.create({
+            data: {
+              name: user.name || "Family Member",
+              email: emailLower,
+              password: "", // no password for Google OAuth
+              role: isAdmin ? "ADMIN" : "MEMBER",
+              photo: user.image
+            }
+          });
+        }
+        
+        token.id = dbUser.id;
+        token.role = dbUser.role;
       }
       // Handle session update if user edits their own profile
       if (trigger === "update" && session) {

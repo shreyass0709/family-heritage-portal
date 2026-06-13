@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -19,11 +19,23 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    // Clear any residual legacy admin credentials from localStorage if present
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("adminEmail");
+      localStorage.removeItem("adminPassword");
+      localStorage.removeItem("adminCredentials");
+      localStorage.removeItem("credentials");
+    }
+  }, []);
   const [error, setError] = useState<string | null>(
     authError === "AccessDenied"
       ? "Your Google account is not authorized. Only pre-approved family members can access this portal."
       : authError === "AdminGoogleBlocked"
       ? "Administrators must sign in using credentials. Please use the Administrator login option below."
+      : authError === "PendingApproval"
+      ? "Your Google account has been registered. Access is pending administrator approval. Please wait until the administrator approves your request."
       : authError
       ? "An error occurred during sign-in. Please try again."
       : null
@@ -96,7 +108,7 @@ function LoginForm() {
         </div>
 
         {/* Error Message */}
-        {error && (
+        {error && (!showAdminLogin || (error !== "PendingApproval" && !error.includes("pending") && !error.includes("Google"))) && (
           <div className="flex items-start gap-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-4.5 rounded-lg mb-6 w-full animate-fade-in">
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
             <p className="leading-relaxed font-semibold">{error}</p>

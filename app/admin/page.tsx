@@ -47,12 +47,13 @@ export default function AdminDashboardPage() {
   const router = useRouter();
 
   // Navigation state
-  const [activeTab, setActiveTab] = useState<"overview" | "members" | "gallery" | "book">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "members" | "gallery" | "book" | "users">("overview");
 
   // Data state
   const [members, setMembers] = useState<DBMember[]>([]);
   const [albums, setAlbums] = useState<DBAlbum[]>([]);
   const [chapters, setChapters] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   // Book Chapters Form States
@@ -104,10 +105,11 @@ export default function AdminDashboardPage() {
   const loadDashboardData = async () => {
     try {
       setLoadingData(true);
-      const [mRes, aRes, cRes] = await Promise.all([
+      const [mRes, aRes, cRes, uRes] = await Promise.all([
         fetch("/api/members"),
         fetch("/api/gallery"),
-        fetch("/api/chapters")
+        fetch("/api/chapters"),
+        fetch("/api/admin/users")
       ]);
       if (mRes.ok && aRes.ok) {
         setMembers(await mRes.json());
@@ -119,6 +121,9 @@ export default function AdminDashboardPage() {
       }
       if (cRes.ok) {
         setChapters(await cRes.json());
+      }
+      if (uRes.ok) {
+        setUsers(await uRes.json());
       }
     } catch (err) {
       console.error("Failed to load admin metrics:", err);
@@ -510,6 +515,62 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleApproveUser = async (id: string, name: string) => {
+    try {
+      setSubmitting(true);
+      setErrorMsg(null);
+      setSuccessMsg(null);
+      
+      const res = await fetch("/api/admin/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, role: "MEMBER" })
+      });
+      
+      if (res.ok) {
+        setSuccessMsg(`Successfully approved access for "${name}".`);
+        loadDashboardData();
+      } else {
+        const data = await res.json();
+        setErrorMsg(data.error || "Failed to approve user.");
+      }
+    } catch (err) {
+      setErrorMsg("Connection failure.");
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteUser = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to permanently deny access and delete the user account for "${name}"?`)) {
+      return;
+    }
+    
+    try {
+      setSubmitting(true);
+      setErrorMsg(null);
+      setSuccessMsg(null);
+      
+      const res = await fetch(`/api/admin/users?id=${id}`, {
+        method: "DELETE"
+      });
+      
+      if (res.ok) {
+        setSuccessMsg(`Successfully removed user account "${name}".`);
+        loadDashboardData();
+      } else {
+        const data = await res.json();
+        setErrorMsg(data.error || "Failed to delete user.");
+      }
+    } catch (err) {
+      setErrorMsg("Connection failure.");
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (status === "loading" || (status === "authenticated" && loadingData)) {
     return (
       <div className="h-screen w-full bg-[#060913] flex items-center justify-center text-slate-400">
@@ -606,6 +667,15 @@ export default function AdminDashboardPage() {
               >
                 History Book
               </button>
+
+              <button
+                onClick={() => { setActiveTab("users"); setSuccessMsg(null); setErrorMsg(null); }}
+                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                  activeTab === "users" ? "bg-gold text-black font-bold" : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                Users
+              </button>
             </div>
           </div>
 
@@ -627,49 +697,72 @@ export default function AdminDashboardPage() {
           {/* 1. OVERVIEW TAB PANEL */}
           {activeTab === "overview" && (
             <div className="space-y-8 animate-fade-in">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 
                 {/* Stat 1 */}
                 <div className="glass-panel border border-white/5 rounded-2xl p-6 flex items-center justify-between shadow-xl">
                   <div className="space-y-1">
-                    <span className="text-slate-400 text-xs uppercase tracking-wider">Registered Members</span>
-                    <p className="text-4xl font-serif font-bold text-white">{members.length}</p>
+                    <span className="text-slate-400 text-[10px] uppercase tracking-wider">Registry Members</span>
+                    <p className="text-3xl font-serif font-bold text-white">{members.length}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-gold/5 text-gold border border-gold/10">
-                    <Users size={28} />
+                  <div className="p-3 rounded-xl bg-gold/5 text-gold border border-gold/10 shrink-0">
+                    <Users size={22} />
                   </div>
                 </div>
 
                 {/* Stat 2 */}
                 <div className="glass-panel border border-white/5 rounded-2xl p-6 flex items-center justify-between shadow-xl">
                   <div className="space-y-1">
-                    <span className="text-slate-400 text-xs uppercase tracking-wider">Photo Albums</span>
-                    <p className="text-4xl font-serif font-bold text-white">{albums.length}</p>
+                    <span className="text-slate-400 text-[10px] uppercase tracking-wider">Photo Albums</span>
+                    <p className="text-3xl font-serif font-bold text-white">{albums.length}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-gold/5 text-gold border border-gold/10">
-                    <BookOpen size={28} />
+                  <div className="p-3 rounded-xl bg-gold/5 text-gold border border-gold/10 shrink-0">
+                    <BookOpen size={22} />
                   </div>
                 </div>
 
                 {/* Stat 3 */}
                 <div className="glass-panel border border-white/5 rounded-2xl p-6 flex items-center justify-between shadow-xl">
                   <div className="space-y-1">
-                    <span className="text-slate-400 text-xs uppercase tracking-wider">Total Photographs</span>
-                    <p className="text-4xl font-serif font-bold text-white">{totalPhotos}</p>
+                    <span className="text-slate-400 text-[10px] uppercase tracking-wider font-sans">Photographs</span>
+                    <p className="text-3xl font-serif font-bold text-white">{totalPhotos}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-gold/5 text-gold border border-gold/10">
-                    <ImageIcon size={28} />
+                  <div className="p-3 rounded-xl bg-gold/5 text-gold border border-gold/10 shrink-0">
+                    <ImageIcon size={22} />
                   </div>
                 </div>
 
                 {/* Stat 4 */}
                 <div className="glass-panel border border-white/5 rounded-2xl p-6 flex items-center justify-between shadow-xl">
                   <div className="space-y-1">
-                    <span className="text-slate-400 text-xs uppercase tracking-wider">Book Chapters</span>
-                    <p className="text-4xl font-serif font-bold text-white">{chapters.length}</p>
+                    <span className="text-slate-400 text-[10px] uppercase tracking-wider">Book Chapters</span>
+                    <p className="text-3xl font-serif font-bold text-white">{chapters.length}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-gold/5 text-gold border border-gold/10">
-                    <BookOpen size={28} className="text-amber-500" />
+                  <div className="p-3 rounded-xl bg-gold/5 text-gold border border-gold/10 shrink-0">
+                    <BookOpen size={22} className="text-amber-500" />
+                  </div>
+                </div>
+
+                {/* Stat 5 - Pending Users */}
+                <div className={`glass-panel border rounded-2xl p-6 flex items-center justify-between shadow-xl transition-all ${
+                  users.filter(u => u.role === "PENDING").length > 0
+                    ? "border-amber-500/35 bg-amber-500/5"
+                    : "border-white/5"
+                }`}>
+                  <div className="space-y-1">
+                    <span className="text-slate-400 text-[10px] uppercase tracking-wider">Pending Approvals</span>
+                    <p className={`text-3xl font-serif font-bold ${
+                      users.filter(u => u.role === "PENDING").length > 0 ? "text-amber-400 animate-pulse" : "text-white"
+                    }`}>
+                      {users.filter(u => u.role === "PENDING").length}
+                    </p>
+                  </div>
+                  <div className={`p-3 rounded-xl shrink-0 border ${
+                    users.filter(u => u.role === "PENDING").length > 0
+                      ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                      : "bg-white/5 text-slate-400 border-white/10"
+                  }`}>
+                    <ShieldAlert size={22} />
                   </div>
                 </div>
 
@@ -1270,6 +1363,133 @@ export default function AdminDashboardPage() {
                   {chapters.length === 0 && (
                     <p className="text-xs text-slate-500 italic text-center py-4">No chapters registered yet.</p>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 5. USERS TAB PANEL */}
+          {activeTab === "users" && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="glass-panel border border-white/5 rounded-2xl p-8 shadow-xl">
+                <h3 className="font-serif text-2xl font-bold text-white mb-6 pb-3 border-b border-white/5 flex items-center gap-2">
+                  <ShieldAlert className="text-gold" size={24} />
+                  Pending Access Requests ({users.filter((u) => u.role === "PENDING").length})
+                </h3>
+
+                {users.filter((u) => u.role === "PENDING").length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {users
+                      .filter((u) => u.role === "PENDING")
+                      .map((u) => (
+                        <div
+                          key={u.id}
+                          className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-xl bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/30 transition-all gap-4"
+                        >
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-serif font-bold text-lg shrink-0 overflow-hidden relative">
+                              {u.photo ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={u.photo} alt={u.name} className="w-full h-full object-cover" />
+                              ) : (
+                                u.name.charAt(0)
+                              )}
+                            </div>
+                            <div className="truncate">
+                              <h4 className="text-sm font-bold text-white leading-tight truncate">{u.name}</h4>
+                              <p className="text-xs text-slate-400 font-sans mt-0.5 truncate">{u.email}</p>
+                              <p className="text-[10px] text-amber-400/80 font-mono mt-1">Requested Access</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto">
+                            <button
+                              onClick={() => handleApproveUser(u.id, u.name)}
+                              disabled={submitting}
+                              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-black bg-gold hover:bg-amber-400 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
+                            >
+                              <CheckCircle2 size={13} />
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(u.id, u.name)}
+                              disabled={submitting}
+                              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
+                            >
+                              <X size={13} />
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 border border-dashed border-white/5 rounded-xl">
+                    <p className="text-xs text-slate-500 italic">No pending access requests.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="glass-panel border border-white/5 rounded-2xl p-8 shadow-xl">
+                <h3 className="font-serif text-2xl font-bold text-white mb-6 pb-3 border-b border-white/5 flex items-center gap-2">
+                  <Users className="text-gold" size={24} />
+                  Active User Accounts ({users.filter((u) => u.role !== "PENDING").length})
+                </h3>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/5 text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                        <th className="py-4 px-4">User</th>
+                        <th className="py-4 px-4">Email Address</th>
+                        <th className="py-4 px-4">Role</th>
+                        <th className="py-4 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {users
+                        .filter((u) => u.role !== "PENDING")
+                        .map((u) => (
+                          <tr key={u.id} className="text-xs text-slate-300 hover:bg-white/[0.01] transition-colors">
+                            <td className="py-4 px-4 font-semibold text-white">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center text-gold font-serif font-bold text-xs shrink-0 overflow-hidden relative">
+                                  {u.photo ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={u.photo} alt={u.name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    u.name.charAt(0)
+                                  )}
+                                </div>
+                                <span>{u.name}</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 font-sans text-slate-400">{u.email}</td>
+                            <td className="py-4 px-4">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                u.role === "ADMIN" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-gold/10 text-gold border border-gold/20"
+                              }`}>
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              {u.email !== session?.user?.email ? (
+                                <button
+                                  onClick={() => handleDeleteUser(u.id, u.name)}
+                                  disabled={submitting}
+                                  className="text-slate-400 hover:text-red-400 p-2 hover:bg-white/5 rounded transition-colors disabled:opacity-50 cursor-pointer inline-flex items-center gap-1.5"
+                                  title="Delete user account"
+                                >
+                                  <Trash2 size={14} />
+                                  <span>Remove Account</span>
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-slate-500 italic">Active Session</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>

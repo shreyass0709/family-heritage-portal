@@ -59,13 +59,35 @@ export const authOptions: NextAuthOptions = {
         const emailLower = user.email.toLowerCase();
         
         // Check if user is in the database
-        const dbUser = await prisma.user.findUnique({
+        let dbUser = await prisma.user.findUnique({
           where: { email: emailLower }
         });
         
-        // If the email is not pre-registered, deny access
+        // If the email is not registered, create them with PENDING status and notify admin
         if (!dbUser) {
-          return false; // Redirects to AccessDenied
+          const { sendAdminNotification } = await import("@/lib/email");
+          
+          dbUser = await prisma.user.create({
+            data: {
+              name: user.name || "Family Member",
+              email: emailLower,
+              password: "", // no password for Google OAuth
+              role: "PENDING",
+              photo: user.image
+            }
+          });
+          
+          // Send notification email asynchronously
+          sendAdminNotification(dbUser.name, dbUser.email).catch(err => 
+            console.error("Failed to trigger admin notification email:", err)
+          );
+
+          return "/login?error=PendingApproval";
+        }
+
+        // If user is pending approval, block access
+        if (dbUser.role === "PENDING") {
+          return "/login?error=PendingApproval";
         }
 
         // Admins should only login using Credentials provider, not Google

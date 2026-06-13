@@ -54,7 +54,7 @@ function LoginForm() {
         sessionStorage.setItem("tabSessionActive", "true");
         sessionStorage.setItem("showReveal", "true");
       }
-      await signIn("google", { callbackUrl });
+      await signIn("google", { callbackUrl: "/" });
     } catch (err) {
       setError("Failed to initialize Google sign-in. Please try again.");
       console.error(err);
@@ -81,7 +81,7 @@ function LoginForm() {
           sessionStorage.setItem("showReveal", "true");
           document.cookie = "wasLoggedIn=true; path=/; SameSite=Lax";
         }
-        window.location.href = "/admin";
+        window.location.href = "/";
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

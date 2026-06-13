@@ -8,7 +8,14 @@ import { motion } from "framer-motion";
 export default function EntranceReveal() {
   const { status } = useSession();
   const pathname = usePathname();
-  const [show, setShow] = useState(false);
+  
+  // Initialize gates to closed (show = true) if we just logged in and need a reveal
+  const [show, setShow] = useState(() => {
+    if (typeof window !== "undefined" && pathname !== "/login") {
+      return sessionStorage.getItem("showReveal") === "true";
+    }
+    return false;
+  });
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -26,28 +33,29 @@ export default function EntranceReveal() {
     }
 
     let animTimer: NodeJS.Timeout;
-    let showTimer: NodeJS.Timeout;
 
-    if (status === "authenticated") {
-      const hasShownWelcome = sessionStorage.getItem("hasShownWelcome") === "true";
-      if (!hasShownWelcome) {
-        showTimer = setTimeout(() => {
-          setShow(true);
-        }, 0);
-        sessionStorage.setItem("hasShownWelcome", "true");
+    // Check if we need to trigger the reveal
+    const needsReveal = sessionStorage.getItem("showReveal") === "true";
 
-        // Cleanly unmount the component after the gates finish sliding open
-        animTimer = setTimeout(() => {
-          setShow(false);
-        }, 2600); // 1.4s delay + 1.0s animation + 0.2s buffer
-      }
+    if (needsReveal && status === "authenticated") {
+      // Clear the sessionStorage flag so it doesn't trigger again
+      sessionStorage.removeItem("showReveal");
+      sessionStorage.setItem("hasShownWelcome", "true");
+      
+      // Ensure gates are shown
+      setShow(true);
+
+      // Cleanly unmount the component after the gates finish sliding open
+      animTimer = setTimeout(() => {
+        setShow(false);
+      }, 2600); // 1.4s delay + 1.0s animation + 0.2s buffer
     } else if (status === "unauthenticated") {
+      sessionStorage.removeItem("showReveal");
       sessionStorage.removeItem("hasShownWelcome");
       setShow(false);
     }
 
     return () => {
-      if (showTimer) clearTimeout(showTimer);
       if (animTimer) clearTimeout(animTimer);
     };
   }, [status, isMounted, pathname]);

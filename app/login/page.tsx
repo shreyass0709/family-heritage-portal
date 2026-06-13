@@ -27,8 +27,13 @@ function LoginForm() {
       localStorage.removeItem("adminPassword");
       localStorage.removeItem("adminCredentials");
       localStorage.removeItem("credentials");
+      
+      // Clear pending showReveal flag if redirected back with an error
+      if (authError) {
+        sessionStorage.removeItem("showReveal");
+      }
     }
-  }, []);
+  }, [authError]);
   const [error, setError] = useState<string | null>(
     authError === "AccessDenied"
       ? "Your Google account is not authorized. Only pre-approved family members can access this portal."
@@ -45,6 +50,9 @@ function LoginForm() {
     setIsLoading(true);
     setError(null);
     try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("showReveal", "true");
+      }
       await signIn("google", { callbackUrl });
     } catch (err) {
       setError("Failed to initialize Google sign-in. Please try again.");
@@ -67,6 +75,9 @@ function LoginForm() {
       if (result?.error) {
         setError(result.error);
       } else {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("showReveal", "true");
+        }
         window.location.href = "/admin";
       }
     } catch (err) {

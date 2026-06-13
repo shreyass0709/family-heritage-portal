@@ -12,29 +12,32 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
+    async signIn({ user }) {
+      if (!user.email) return false;
+      const emailLower = user.email.toLowerCase();
+      
+      // Check if user is in the database
+      const dbUser = await prisma.user.findUnique({
+        where: { email: emailLower }
+      });
+      
+      // If the email is not pre-registered by the admin, deny access
+      if (!dbUser) {
+        return false; // Redirects to /api/auth/error?error=AccessDenied
+      }
+      
+      return true;
+    },
     async jwt({ token, user, trigger, session }) {
       if (user && user.email) {
-        let dbUser = await prisma.user.findUnique({
+        const dbUser = await prisma.user.findUnique({
           where: { email: user.email.toLowerCase() }
         });
         
-        if (!dbUser) {
-          const emailLower = user.email.toLowerCase();
-          const isAdmin = emailLower === "shreyass0709@gmail.com" || emailLower === "madubana2005@poojari.com" || emailLower.includes("admin");
-          
-          dbUser = await prisma.user.create({
-            data: {
-              name: user.name || "Family Member",
-              email: emailLower,
-              password: "", // no password for Google OAuth
-              role: isAdmin ? "ADMIN" : "MEMBER",
-              photo: user.image
-            }
-          });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
         }
-        
-        token.id = dbUser.id;
-        token.role = dbUser.role;
       }
       // Handle session update if user edits their own profile
       if (trigger === "update" && session) {

@@ -13,8 +13,15 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
+  const authError = searchParams.get("error");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    authError === "AccessDenied"
+      ? "Your Google account is not authorized. Only pre-approved family members can access this portal."
+      : authError
+      ? "An error occurred during sign-in. Please try again."
+      : null
+  );
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);

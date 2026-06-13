@@ -14,13 +14,15 @@ async function main() {
   await prisma.familyMember.deleteMany({});
 
   // 2. Create users
-  const adminPassword = bcrypt.hashSync("Madubana@01012005", 12);
+  const adminEmail = process.env.ADMIN_EMAIL || "madubana2005@poojari.com";
+  const adminRawPassword = process.env.ADMIN_PASSWORD || "Madubana@01012005";
+  const adminPassword = bcrypt.hashSync(adminRawPassword, 12);
   const memberPassword = bcrypt.hashSync("Sadasyaru@01012005", 12);
 
   const admin = await prisma.user.create({
     data: {
       name: "Shreyas Poojari",
-      email: "madubana2005@poojari.com",
+      email: adminEmail.toLowerCase(),
       password: adminPassword,
       role: "ADMIN",
       photo: "/images/shreyas.png",

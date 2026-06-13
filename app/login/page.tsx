@@ -67,7 +67,7 @@ function LoginForm() {
       if (result?.error) {
         setError(result.error);
       } else {
-        window.location.href = callbackUrl;
+        window.location.href = "/admin";
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

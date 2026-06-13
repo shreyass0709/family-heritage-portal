@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
 export default function EntranceReveal() {
   const { status } = useSession();
+  const pathname = usePathname();
   const [show, setShow] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -18,7 +20,10 @@ export default function EntranceReveal() {
   }, []);
 
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || pathname === "/login") {
+      setShow(false);
+      return;
+    }
 
     let animTimer: NodeJS.Timeout;
     let showTimer: NodeJS.Timeout;
@@ -45,9 +50,9 @@ export default function EntranceReveal() {
       if (showTimer) clearTimeout(showTimer);
       if (animTimer) clearTimeout(animTimer);
     };
-  }, [status, isMounted]);
+  }, [status, isMounted, pathname]);
 
-  if (!isMounted || !show) return null;
+  if (!isMounted || !show || pathname === "/login") return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden pointer-events-none select-none">

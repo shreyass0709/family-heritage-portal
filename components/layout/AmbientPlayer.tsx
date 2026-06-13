@@ -40,7 +40,7 @@ class Soundscape {
     try {
       if (this.windOsc) this.windOsc.stop();
       if (this.windLfo) this.windLfo.stop();
-    } catch (e) {}
+    } catch {}
     if (this.ctx) {
       this.ctx.close();
     }

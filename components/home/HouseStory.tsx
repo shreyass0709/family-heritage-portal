@@ -36,7 +36,7 @@ export default function HouseStory() {
             Built in 2005 in the peaceful village of Navunda, this family home stands as a testament to the hard work and vision of Kelaginamane. Designed to provide comfort, space, and a strong sense of belonging, the house has been the heart of family gatherings and celebrations for many years.
           </p>
           <p className="text-slate-400 text-sm md:text-base leading-relaxed">
-            Over the years, it has witnessed countless memorable moments, from festivals and family functions to reunions that bring loved ones back home from cities such as Bangalore and Mumbai. More than just a building, the house represents the family's roots, traditions, and enduring bond. It continues to serve as a place where memories are created, stories are shared, and family values are passed on to future generations.
+            Over the years, it has witnessed countless memorable moments, from festivals and family functions to reunions that bring loved ones back home from cities such as Bangalore and Mumbai. More than just a building, the house represents the family&apos;s roots, traditions, and enduring bond. It continues to serve as a place where memories are created, stories are shared, and family values are passed on to future generations.
           </p>
           
           {session && (

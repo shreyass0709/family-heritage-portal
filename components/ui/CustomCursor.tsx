@@ -6,7 +6,9 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 export default function CustomCursor() {
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isTouchDevice] = useState(() => {
+    return typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  });
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
   // Position of the mouse/primary cursor
@@ -29,19 +31,15 @@ export default function CustomCursor() {
   const trail3Y = useSpring(mouseY, { stiffness: 80, damping: 14, mass: 0.2 });
 
   useEffect(() => {
-    // Detect touch capability
-    const isTouch = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-    setIsTouchDevice(isTouch);
-
     // Hide default cursor on desktop only
-    if (!isTouch) {
+    if (!isTouchDevice) {
       document.body.classList.add("custom-cursor-active");
     }
 
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
-      if (!isVisible) setIsVisible(true);
+      setIsVisible(true);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -50,7 +48,7 @@ export default function CustomCursor() {
         mouseX.set(touch.clientX);
         // Offset Y slightly above the finger so it's not hidden
         mouseY.set(touch.clientY - 45);
-        if (!isVisible) setIsVisible(true);
+        setIsVisible(true);
       }
     };
 
@@ -142,7 +140,7 @@ export default function CustomCursor() {
       window.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("touchstart", handleTouchStartHover);
     };
-  }, [mouseX, mouseY, isVisible, isTouchDevice]);
+  }, [mouseX, mouseY, isTouchDevice]);
 
   return (
     <>

@@ -83,7 +83,7 @@ export default function Hero() {
             variants={itemVariants}
             className="text-slate-300 text-lg md:text-2xl font-light tracking-wide max-w-2xl mb-12 font-serif italic"
           >
-            "Rooted in History, Growing for Generations"
+            &ldquo;Rooted in History, Growing for Generations&rdquo;
           </motion.p>
 
           {/* Call-to-actions */}

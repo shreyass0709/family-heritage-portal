@@ -22,7 +22,7 @@ export default function Footer() {
 
         <div className="text-center md:text-right">
           <p className="font-serif italic text-gold/80 text-sm md:text-base">
-            "Rooted in History, Growing for Generations"
+            &ldquo;Rooted in History, Growing for Generations&rdquo;
           </p>
           <p className="text-xs text-slate-500 mt-1">
             Kelaginamane Navunda

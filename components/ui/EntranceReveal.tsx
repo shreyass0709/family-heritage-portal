@@ -10,19 +10,34 @@ export default function EntranceReveal() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    const mountTimer = setTimeout(() => {
+      setIsMounted(true);
+    }, 0);
+
     // Check sessionStorage to see if we just logged in
     const needsReveal = sessionStorage.getItem("showReveal") === "true";
+    let animTimer: NodeJS.Timeout;
+    let showTimer: NodeJS.Timeout;
+
     if (needsReveal) {
-      setShow(true);
+      showTimer = setTimeout(() => {
+        setShow(true);
+      }, 0);
       sessionStorage.removeItem("showReveal");
 
       // Cleanly unmount the component after the gates finish sliding open
-      const timer = setTimeout(() => {
+      animTimer = setTimeout(() => {
         setShow(false);
       }, 2600); // 1.4s delay + 1.0s animation + 0.2s buffer
-      return () => clearTimeout(timer);
+      
+      return () => {
+        clearTimeout(mountTimer);
+        clearTimeout(showTimer);
+        if (animTimer) clearTimeout(animTimer);
+      };
     }
+
+    return () => clearTimeout(mountTimer);
   }, [pathname]);
 
   if (!isMounted || !show) return null;

@@ -8,6 +8,11 @@ function SessionGuard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
   const pathname = usePathname();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Synchronous client check to prevent flashing of protected contents on tab reopen
   const isClient = typeof window !== "undefined";
@@ -55,7 +60,7 @@ function SessionGuard({ children }: { children: React.ReactNode }) {
     }
   }, [status, pathname]);
 
-  if (isRedirecting || (isClient && needsSignOut)) {
+  if (mounted && (isRedirecting || needsSignOut)) {
     return (
       <div className="h-screen w-full bg-[#060913] flex flex-col items-center justify-center text-slate-400 font-sans z-[200] relative">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mb-4"></div>

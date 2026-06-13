@@ -51,6 +51,7 @@ function LoginForm() {
     setError(null);
     try {
       if (typeof window !== "undefined") {
+        sessionStorage.setItem("tabSessionActive", "true");
         sessionStorage.setItem("showReveal", "true");
       }
       await signIn("google", { callbackUrl });
@@ -76,7 +77,9 @@ function LoginForm() {
         setError(result.error);
       } else {
         if (typeof window !== "undefined") {
+          sessionStorage.setItem("tabSessionActive", "true");
           sessionStorage.setItem("showReveal", "true");
+          document.cookie = "wasLoggedIn=true; path=/; SameSite=Lax";
         }
         window.location.href = "/admin";
       }

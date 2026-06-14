@@ -149,8 +149,70 @@ export default function FlipBook({ chapters }: FlipBookProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [autoplay, setAutoplay] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobilePageIndex, setMobilePageIndex] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const totalSheets = Math.ceil((chapters.length + 1) / 2); // Dynamic sheets count
   const totalSpreads = totalSheets + 2;
+
+  // Sync desktop spread changes back to mobile page index
+  useEffect(() => {
+    let targetPage = 0;
+    if (currentSpread === 0) {
+      targetPage = 0;
+    } else if (currentSpread === totalSpreads - 1) {
+      targetPage = chapters.length + 2;
+    } else {
+      const computedPage = (currentSpread - 1) * 2 + 1;
+      targetPage = Math.min(computedPage, chapters.length + 1);
+    }
+
+    if (mobilePageIndex !== targetPage) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMobilePageIndex(targetPage);
+    }
+  }, [currentSpread, totalSpreads, chapters.length, mobilePageIndex]);
+
+  const handleMobileNext = () => {
+    if (mobilePageIndex >= chapters.length + 2) return;
+    const nextIdx = mobilePageIndex + 1;
+    setMobilePageIndex(nextIdx);
+    playSynthesizedSound(nextIdx === 1 ? 'open' : nextIdx === chapters.length + 2 ? 'close' : 'flip', isMuted);
+    
+    // Sync to desktop
+    const nextSpread = Math.floor((nextIdx - 1) / 2) + 1;
+    setCurrentSpread(nextIdx === 0 ? 0 : nextIdx === chapters.length + 2 ? totalSpreads - 1 : nextSpread);
+  };
+
+  const handleMobilePrev = () => {
+    if (mobilePageIndex <= 0) return;
+    const prevIdx = mobilePageIndex - 1;
+    setMobilePageIndex(prevIdx);
+    playSynthesizedSound(prevIdx === 0 ? 'close' : prevIdx === chapters.length + 1 ? 'open' : 'flip', isMuted);
+    
+    // Sync to desktop
+    const prevSpread = Math.floor((prevIdx - 1) / 2) + 1;
+    setCurrentSpread(prevIdx === 0 ? 0 : prevIdx === chapters.length + 2 ? totalSpreads - 1 : prevSpread);
+  };
+
+  const handleMobileJump = (targetPage: number) => {
+    setMobilePageIndex(targetPage);
+    playSynthesizedSound('flip', isMuted);
+    
+    // Sync to desktop
+    const targetSpread = Math.floor((targetPage - 1) / 2) + 1;
+    setCurrentSpread(targetPage === 0 ? 0 : targetPage === chapters.length + 2 ? totalSpreads - 1 : targetSpread);
+  };
 
   // Autoplay effect
   useEffect(() => {
@@ -361,6 +423,230 @@ export default function FlipBook({ chapters }: FlipBookProps) {
       </p>
     );
   };
+
+  if (isMobile) {
+    const renderMobilePage = () => {
+      // 0. Front Cover
+      if (mobilePageIndex === 0) {
+        return (
+          <div 
+            onClick={() => handleMobileNext()}
+            className="w-full aspect-[3/4] max-h-[70vh] leather-grain-bg flex flex-col justify-between items-center text-center text-white p-8 border border-gold/30 rounded-2xl relative shadow-2xl cursor-pointer"
+          >
+            <div className="gold-corner-accent gold-corner-tl"><div className="gold-corner-inner" /></div>
+            <div className="gold-corner-accent gold-corner-tr"><div className="gold-corner-inner" /></div>
+            <div className="gold-corner-accent gold-corner-bl"><div className="gold-corner-inner" /></div>
+            <div className="gold-corner-accent gold-corner-br"><div className="gold-corner-inner" /></div>
+
+            <span className="text-gold uppercase tracking-[0.25em] text-[8px] font-extrabold mt-4 border border-gold/25 px-3 py-1 rounded bg-black/20">
+              Heritage Chronicle
+            </span>
+
+            <div className="my-auto py-6 px-4 gold-foil-plate rounded bg-black/25 border border-gold/20 backdrop-blur-[2px] w-full relative">
+              <BookOpen size={36} className="text-gold mx-auto mb-3 opacity-95 animate-pulse" />
+              <h2 className="font-serif text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-gold to-amber-400 tracking-wider leading-snug gold-text-embossed">
+                ಮಧುಬನ ಸದಸ್ಯರು
+              </h2>
+              <div className="w-12 h-0.5 bg-gold/55 my-3 mx-auto" />
+              <p className="text-[9px] text-slate-300 italic font-serif leading-relaxed">
+                &ldquo;Rooted in History, Growing for Generations.&rdquo;
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center gap-1.5 mb-2">
+              <span className="text-gold/90 text-[10px] uppercase tracking-[0.2em] font-bold animate-pulse">
+                Tap to Open
+              </span>
+            </div>
+          </div>
+        );
+      }
+
+      // Last page: Back Cover
+      if (mobilePageIndex === chapters.length + 2) {
+        return (
+          <div 
+            onClick={() => handleMobilePrev()}
+            className="w-full aspect-[3/4] max-h-[70vh] leather-grain-bg flex flex-col justify-between items-center text-center text-white p-8 border border-gold/30 rounded-2xl relative shadow-2xl cursor-pointer"
+          >
+            <div className="gold-corner-accent gold-corner-tl"><div className="gold-corner-inner" /></div>
+            <div className="gold-corner-accent gold-corner-tr"><div className="gold-corner-inner" /></div>
+            <div className="gold-corner-accent gold-corner-bl"><div className="gold-corner-inner" /></div>
+            <div className="gold-corner-accent gold-corner-br"><div className="gold-corner-inner" /></div>
+
+            <span className="text-gold uppercase tracking-[0.25em] text-[8px] font-extrabold mt-4 border border-gold/25 px-3 py-1 rounded bg-black/20">
+              Poojari Ledger
+            </span>
+
+            <div className="my-auto py-6 px-4 gold-foil-plate rounded bg-black/25 border border-gold/20 backdrop-blur-[2px] w-full relative">
+              <h3 className="font-serif text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-gold to-amber-400 tracking-wider mb-2 gold-text-embossed">
+                POOJARI HERITAGE
+              </h3>
+              <div className="w-10 h-0.5 bg-gold/45 my-2.5 mx-auto" />
+              <p className="font-serif italic text-slate-300 text-[10px] leading-relaxed">
+                &ldquo;Rooted in History, Growing for Generations&rdquo;
+              </p>
+            </div>
+
+            <span className="text-slate-400 text-[8px] mb-4 font-mono tracking-widest uppercase">
+              Poojari Family Council © 2026
+            </span>
+          </div>
+        );
+      }
+
+      // 1. Table of Contents
+      if (mobilePageIndex === 1) {
+        return (
+          <div className="w-full bg-[#fcf8f0] p-6 rounded-2xl border border-amber-900/10 shadow-xl flex flex-col justify-between text-amber-950 h-full min-h-[420px]">
+            <div className="text-center border-b border-amber-900/10 pb-3 mt-1">
+              <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-amber-800">Family Ledger</span>
+              <h4 className="font-serif text-base font-bold text-amber-950 mt-0.5 tracking-wide">TABLE OF CONTENTS</h4>
+            </div>
+
+            <nav className="my-auto py-4 space-y-2 w-full">
+              {chapters.map((ch, idx) => (
+                <button
+                  key={ch.id}
+                  onClick={() => handleMobileJump(idx + 2)}
+                  className="w-full flex items-baseline justify-between text-left text-xs font-serif hover:text-gold transition-colors py-2 border-b border-dashed border-amber-800/10 cursor-pointer"
+                >
+                  <span className="font-medium truncate mr-2">
+                    {ch.title.replace(/Chapter \d+:\s*/, "")}
+                  </span>
+                  <span className="text-slate-400 font-mono text-[9px] flex-shrink-0">p. {idx + 2}</span>
+                </button>
+              ))}
+              
+              <button
+                onClick={() => handleMobileJump(chapters.length + 2)}
+                className="w-full flex items-baseline justify-between text-left text-xs font-serif hover:text-gold transition-colors py-2 border-b border-dashed border-amber-800/10 cursor-pointer"
+              >
+                <span className="font-medium">Ancestral Epilogue</span>
+                <span className="text-slate-400 font-mono text-[9px] flex-shrink-0">p. {chapters.length + 2}</span>
+              </button>
+            </nav>
+
+            <div className="text-center text-[8px] text-amber-800/60 font-mono uppercase tracking-wider border-t border-amber-900/5 pt-2">
+              Tap chapter to jump to page
+            </div>
+          </div>
+        );
+      }
+
+      // 2 to N-1: Chapters
+      const chapterIdx = mobilePageIndex - 2;
+      const chapter = chapters[chapterIdx];
+
+      return (
+        <div className="w-full bg-[#fcf8f0] p-6 rounded-2xl border border-amber-900/10 shadow-xl flex flex-col justify-between text-amber-950 h-full min-h-[420px] select-text">
+          {chapter ? (
+            <div className="flex flex-col h-full justify-between">
+              <div className="flex items-center justify-between border-b border-amber-900/10 pb-2">
+                <span className="text-[9px] uppercase tracking-widest text-amber-800/70 font-mono font-bold">
+                  {chapter.title.split(":")[0] || `Chapter ${chapter.chapter}`}
+                </span>
+                <BookOpen size={11} className="text-amber-800/40" />
+              </div>
+              
+              <div className="my-auto py-3 max-h-[300px] overflow-y-auto pr-1">
+                {renderTextContent(chapter.content)}
+              </div>
+
+              <div className="flex justify-between items-end border-t border-amber-900/5 pt-2 mt-2">
+                <span className="text-[9px] text-amber-800 font-bold font-mono">Page {mobilePageIndex}</span>
+                <span className="text-[9px] text-amber-800/50 font-mono uppercase">Madubana Ledger</span>
+              </div>
+            </div>
+          ) : (
+            <div className="my-auto text-center text-slate-400 italic font-serif">Page is empty</div>
+          )}
+        </div>
+      );
+    };
+
+    return (
+      <div className="w-full max-w-md mx-auto px-4 flex flex-col items-center gap-6">
+        {/* Mobile Toolbar */}
+        <div className="flex flex-col w-full bg-slate-950/80 backdrop-blur-md border border-white/10 p-3.5 rounded-2xl shadow-xl gap-3 text-slate-300">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles size={14} className="text-gold" />
+              <span className="text-xs font-serif font-semibold text-amber-200">Chronicles</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setFontSize(fontSize === 'sm' ? 'md' : fontSize === 'md' ? 'lg' : 'sm')}
+                className="px-2 py-1 bg-white/5 rounded text-[10px] font-bold"
+              >
+                Text: {fontSize.toUpperCase()}
+              </button>
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className="p-1 bg-white/5 rounded text-slate-400"
+              >
+                {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-between gap-1.5 text-[10px]">
+            {(['study', 'candlelight', 'night'] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTheme(t)}
+                className={cn(
+                  "flex-1 py-1 rounded border capitalize transition-all",
+                  theme === t
+                    ? "bg-amber-900/40 text-gold border-gold/40 font-bold"
+                    : "border-white/5 hover:text-slate-100"
+                )}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Ambient Desk Viewport for Mobile */}
+        <div className={cn(
+          "relative w-full rounded-2xl p-4 transition-all duration-500 shadow-xl",
+          theme === 'study' ? "theme-study" : theme === 'candlelight' ? "theme-candlelight" : "theme-night"
+        )}>
+          {theme === 'candlelight' && <div className="candle-overlay rounded-2xl" />}
+          {theme === 'night' && <div className="moonlight-overlay rounded-2xl" />}
+          
+          <div className="w-full relative z-10">
+            {renderMobilePage()}
+          </div>
+        </div>
+
+        {/* Mobile Page Controls */}
+        <div className="flex items-center justify-between w-full mt-2 px-2">
+          <button
+            onClick={handleMobilePrev}
+            disabled={mobilePageIndex === 0}
+            className="p-2.5 bg-slate-900 hover:bg-gold text-slate-300 hover:text-black rounded-full border border-white/10 hover:border-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          
+          <span className="text-[10px] text-slate-400 font-mono tracking-widest uppercase bg-slate-950/50 border border-white/5 px-4 py-2 rounded-full">
+            {mobilePageIndex === 0 ? "Cover" : mobilePageIndex === chapters.length + 2 ? "End" : `Page ${mobilePageIndex} / ${chapters.length + 1}`}
+          </span>
+          
+          <button
+            onClick={handleMobileNext}
+            disabled={mobilePageIndex === chapters.length + 2}
+            className="p-2.5 bg-slate-900 hover:bg-gold text-slate-300 hover:text-black rounded-full border border-white/10 hover:border-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className="w-full max-w-6xl mx-auto flex flex-col items-center select-none py-4 relative">

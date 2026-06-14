@@ -222,6 +222,7 @@ export default function InteractiveTree({ members }: InteractiveTreeProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
+        preventScrolling={false}
         fitView
         fitViewOptions={{ padding: 0.15 }}
         minZoom={0.1}

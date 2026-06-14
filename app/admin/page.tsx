@@ -646,10 +646,10 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Nav Tabs */}
-            <div className="flex items-center bg-slate-900/80 border border-white/10 p-1 rounded-lg backdrop-blur-sm">
+            <div className="flex items-center bg-slate-900/80 border border-white/10 p-1 rounded-lg backdrop-blur-sm overflow-x-auto max-w-full scrollbar-none whitespace-nowrap">
               <button
                 onClick={() => { setActiveTab("overview"); setSuccessMsg(null); setErrorMsg(null); }}
-                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                   activeTab === "overview" ? "bg-gold text-black font-bold" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
@@ -658,7 +658,7 @@ export default function AdminDashboardPage() {
               
               <button
                 onClick={() => { setActiveTab("members"); setSuccessMsg(null); setErrorMsg(null); }}
-                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                   activeTab === "members" ? "bg-gold text-black font-bold" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
@@ -667,7 +667,7 @@ export default function AdminDashboardPage() {
               
               <button
                 onClick={() => { setActiveTab("gallery"); setSuccessMsg(null); setErrorMsg(null); }}
-                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                   activeTab === "gallery" ? "bg-gold text-black font-bold" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
@@ -676,7 +676,7 @@ export default function AdminDashboardPage() {
 
               <button
                 onClick={() => { setActiveTab("book"); setSuccessMsg(null); setErrorMsg(null); }}
-                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                   activeTab === "book" ? "bg-gold text-black font-bold" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
@@ -685,7 +685,7 @@ export default function AdminDashboardPage() {
 
               <button
                 onClick={() => { setActiveTab("users"); setSuccessMsg(null); setErrorMsg(null); }}
-                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                   activeTab === "users" ? "bg-gold text-black font-bold" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
@@ -696,14 +696,14 @@ export default function AdminDashboardPage() {
 
           {/* Form Notification Messages */}
           {successMsg && (
-            <div className="flex items-center gap-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs p-4.5 rounded-lg">
+            <div className="flex items-center gap-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs p-4 rounded-lg">
               <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
               <p className="font-semibold">{successMsg}</p>
             </div>
           )}
 
           {errorMsg && (
-            <div className="flex items-center gap-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-4.5 rounded-lg">
+            <div className="flex items-center gap-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-4 rounded-lg">
               <ShieldAlert size={16} className="shrink-0 text-rose-400" />
               <p className="font-semibold">{errorMsg}</p>
             </div>

@@ -58,7 +58,7 @@ export default function GalleryGrid({ albums }: GalleryGridProps) {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4.5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
                   selectedCategory === cat
                     ? "bg-gold text-black font-bold shadow-[0_0_10px_rgba(212,175,55,0.15)]"
                     : "bg-slate-900 text-slate-300 hover:bg-slate-800 border border-white/5"
@@ -80,7 +80,7 @@ export default function GalleryGrid({ albums }: GalleryGridProps) {
               <button
                 key={grp}
                 onClick={() => setSelectedGroup(grp)}
-                className={`px-4.5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
                   selectedGroup === grp
                     ? "bg-gold text-black font-bold shadow-[0_0_10px_rgba(212,175,55,0.15)]"
                     : "bg-slate-900 text-slate-300 hover:bg-slate-800 border border-white/5"
@@ -123,7 +123,7 @@ export default function GalleryGrid({ albums }: GalleryGridProps) {
                   />
                   
                   {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4.5">
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4">
                     <div className="flex justify-between items-start">
                       <span className="text-[9px] uppercase tracking-wider font-semibold bg-gold text-black px-2 py-0.5 rounded">
                         {photo.category}

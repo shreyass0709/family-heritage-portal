@@ -129,7 +129,7 @@ export default async function MemberProfilePage({ params }: MemberPageProps) {
                 )}
 
                 {/* Meta details list */}
-                <div className="w-full text-left space-y-4.5 mt-8 border-t border-white/5 pt-6 text-sm text-slate-300">
+                <div className="w-full text-left space-y-4 mt-8 border-t border-white/5 pt-6 text-sm text-slate-300">
                   
                   <div className="flex items-start gap-3.5">
                     <Calendar size={16} className="text-gold shrink-0 mt-0.5" />
@@ -203,12 +203,12 @@ export default async function MemberProfilePage({ params }: MemberPageProps) {
                   </h3>
                   
                   {/* Vertical line timeline structure */}
-                  <div className="relative border-l border-gold/20 ml-4.5 mt-8 space-y-10">
+                  <div className="relative border-l border-gold/20 ml-5 mt-8 space-y-10">
                     {member.timeline.map((event: TimelineEvent, idx: number) => (
                       <div key={idx} className="relative pl-8 group">
                         
                         {/* Interactive floating indicator dot */}
-                        <div className="absolute -left-[9px] top-1.5 w-4.5 h-4.5 rounded-full bg-slate-900 border-2 border-gold group-hover:bg-gold transition-colors duration-300" />
+                        <div className="absolute -left-[8px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-gold group-hover:bg-gold transition-colors duration-300" />
                         
                         <div className="space-y-1.5">
                           <span className="font-mono text-xs font-bold uppercase tracking-wider text-gold">

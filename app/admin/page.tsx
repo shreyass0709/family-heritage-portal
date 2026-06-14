@@ -42,6 +42,21 @@ interface DBMember {
   achievements?: unknown;
 }
 
+interface DBChapter {
+  id: string;
+  chapter: number;
+  title: string;
+  content: string;
+}
+
+interface DBUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  photo?: string | null;
+}
+
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -52,8 +67,8 @@ export default function AdminDashboardPage() {
   // Data state
   const [members, setMembers] = useState<DBMember[]>([]);
   const [albums, setAlbums] = useState<DBAlbum[]>([]);
-  const [chapters, setChapters] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [chapters, setChapters] = useState<DBChapter[]>([]);
+  const [users, setUsers] = useState<DBUser[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   // Book Chapters Form States
@@ -470,7 +485,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const startEditChapter = (ch: any) => {
+  const startEditChapter = (ch: DBChapter) => {
     setEditingChapterId(ch.id);
     setChapterNum(ch.chapter.toString());
     setChapterTitle(ch.title);

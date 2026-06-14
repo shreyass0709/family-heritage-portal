@@ -9,42 +9,40 @@ export default function EntranceReveal({ initialShow = false }: { initialShow?: 
   const { status } = useSession();
   const pathname = usePathname();
   
-  // Initialize gates to closed (show = true) if server says so
-  const [show, setShow] = useState(initialShow);
+  // Initialize gates to closed (show = true) if server says so or if cookie says so
+  const [show, setShow] = useState(() => {
+    if (typeof window !== "undefined") {
+      return initialShow || document.cookie.includes("showReveal=true");
+    }
+    return initialShow;
+  });
 
   useEffect(() => {
     if (pathname === "/login") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShow(false);
       // Clear cookie immediately if we go back to login page
       document.cookie = "showReveal=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
       return;
     }
 
-    let animTimer: NodeJS.Timeout;
+    if (status === "unauthenticated") {
+      document.cookie = "showReveal=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
+      setShow(false);
+      return;
+    }
 
-    // Check if we need to trigger the reveal
-    const needsReveal = show || document.cookie.includes("showReveal=true");
-
-    if (needsReveal && status === "authenticated") {
+    if (show && status === "authenticated") {
       // Clear the cookie so it doesn't trigger again
       document.cookie = "showReveal=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
       sessionStorage.setItem("hasShownWelcome", "true");
       
-      // Ensure gates are shown
-      setShow(true);
-
-      // Cleanly unmount the component after the gates finish sliding open
-      animTimer = setTimeout(() => {
+      const animTimer = setTimeout(() => {
         setShow(false);
       }, 2600); // 1.4s delay + 1.0s animation + 0.2s buffer
-    } else if (status === "unauthenticated") {
-      document.cookie = "showReveal=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
-      setShow(false);
-    }
 
-    return () => {
-      if (animTimer) clearTimeout(animTimer);
-    };
+      return () => clearTimeout(animTimer);
+    }
   }, [status, pathname, show]);
 
   if (!show || pathname === "/login") return null;

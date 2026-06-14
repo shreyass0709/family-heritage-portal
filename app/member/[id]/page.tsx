@@ -40,7 +40,7 @@ export default async function MemberProfilePage({ params }: MemberPageProps) {
   const member: FamilyMember = {
     id: dbMember.id,
     name: dbMember.name,
-    gender: dbMember.gender as any,
+    gender: dbMember.gender as "MALE" | "FEMALE",
     birthDate: dbMember.birthDate,
     deathDate: dbMember.deathDate,
     occupation: dbMember.occupation,

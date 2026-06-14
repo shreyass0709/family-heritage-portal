@@ -14,7 +14,7 @@ export default async function FamilyTreePage() {
   const members: FamilyMember[] = dbMembers.map((member) => ({
     id: member.id,
     name: member.name,
-    gender: member.gender as any,
+    gender: member.gender as "MALE" | "FEMALE",
     birthDate: member.birthDate,
     deathDate: member.deathDate,
     occupation: member.occupation,

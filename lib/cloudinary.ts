@@ -46,13 +46,15 @@ export async function uploadImage(base64Data: string, filename?: string): Promis
       
       const errMsg = response && response[0] && response[0].error ? response[0].error.message : "Unknown error";
       throw new Error(errMsg);
-    } catch (err: any) {
-      console.error("UploadThing API upload failed:", err);
-      throw new Error(`UploadThing upload failed: ${err.message || err}`);
+    } catch (err) {
+      const error = err as Error;
+      console.error("UploadThing API upload failed:", error);
+      throw new Error(`UploadThing upload failed: ${error.message || error}`);
     }
-  } catch (err: any) {
-    console.error("Error processing image conversion/upload:", err);
-    throw new Error(err.message || "Image processing failed");
+  } catch (err) {
+    const error = err as Error;
+    console.error("Error processing image conversion/upload:", error);
+    throw new Error(error.message || "Image processing failed");
   }
 }
 

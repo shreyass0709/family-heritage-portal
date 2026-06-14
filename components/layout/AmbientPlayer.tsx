@@ -5,7 +5,7 @@ import { Volume2, VolumeX } from "lucide-react";
 
 class Soundscape {
   ctx: AudioContext | null = null;
-  chimeInterval: any = null;
+  chimeInterval: ReturnType<typeof setInterval> | null = null;
   windOsc: OscillatorNode | null = null;
   windLfo: OscillatorNode | null = null;
   isPlaying = false;
@@ -13,7 +13,10 @@ class Soundscape {
   start() {
     if (this.isPlaying) return;
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error("AudioContext not supported");
+      }
       this.ctx = new AudioContextClass();
       this.isPlaying = true;
 

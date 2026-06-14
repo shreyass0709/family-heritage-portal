@@ -27,7 +27,7 @@ function FamilyBranchNode({ unit }: { unit: FamilyUnit }) {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: "easeOut" as any }
+      transition: { duration: 0.6, ease: "easeOut" as const }
     }
   };
 
@@ -53,7 +53,7 @@ function FamilyBranchNode({ unit }: { unit: FamilyUnit }) {
             initial={{ height: 0 }}
             whileInView={{ height: 28 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, ease: "easeOut" as any }}
+            transition={{ duration: 0.6, ease: "easeOut" as const }}
             className="w-0.5 bg-gradient-to-b from-gold to-gold/50"
           />
 
@@ -79,7 +79,7 @@ function FamilyBranchNode({ unit }: { unit: FamilyUnit }) {
                     initial={{ height: 0 }}
                     whileInView={{ height: 20 }}
                     viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.5, ease: "easeOut" as any, delay: 0.2 }}
+                    transition={{ duration: 0.5, ease: "easeOut" as const, delay: 0.2 }}
                     className="w-0.5 bg-gold/50"
                   />
 
@@ -188,7 +188,7 @@ export default function ScrollTree({ members }: ScrollTreeProps) {
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.8, ease: "easeOut" as any }
+      transition: { duration: 0.8, ease: "easeOut" as const }
     }
   };
 
@@ -237,7 +237,7 @@ export default function ScrollTree({ members }: ScrollTreeProps) {
                 initial={{ pathLength: 0 }}
                 whileInView={{ pathLength: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1, ease: "easeInOut" as any }}
+                transition={{ duration: 1, ease: "easeInOut" as const }}
               />
             </svg>
           </div>
@@ -277,7 +277,7 @@ export default function ScrollTree({ members }: ScrollTreeProps) {
                     Branch {idx + 1}
                   </span>
                   <h3 className="font-serif text-2xl font-bold text-white">
-                    {siblingUnit.primary.name.split(" ")[0]}'s Family Branch
+                    {siblingUnit.primary.name.split(" ")[0]}&apos;s Family Branch
                   </h3>
                 </div>
 

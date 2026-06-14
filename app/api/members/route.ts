@@ -70,10 +70,11 @@ export async function POST(req: Request) {
       try {
         const safeName = name ? name.toLowerCase().replace(/[^a-z0-9]/g, "_") : "member";
         imageUrl = await uploadImage(photo, `member_${safeName}`);
-      } catch (err: any) {
-        console.error("Failed to upload member photo:", err);
+      } catch (err) {
+        const error = err as Error;
+        console.error("Failed to upload member photo:", error);
         return NextResponse.json(
-          { error: `Photo upload failed: ${err.message || err}` },
+          { error: `Photo upload failed: ${error.message || error}` },
           { status: 500 }
         );
       }
@@ -152,10 +153,11 @@ export async function PUT(req: Request) {
       try {
         const safeName = name ? name.toLowerCase().replace(/[^a-z0-9]/g, "_") : "member";
         imageUrl = await uploadImage(photo, `member_${safeName}`);
-      } catch (err: any) {
-        console.error("Failed to upload member photo update:", err);
+      } catch (err) {
+        const error = err as Error;
+        console.error("Failed to upload member photo update:", error);
         return NextResponse.json(
-          { error: `Photo upload failed: ${err.message || err}` },
+          { error: `Photo upload failed: ${error.message || error}` },
           { status: 500 }
         );
       }

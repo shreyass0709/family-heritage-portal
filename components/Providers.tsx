@@ -11,6 +11,7 @@ function SessionGuard({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -22,6 +23,7 @@ function SessionGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (needsSignOut) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsRedirecting(true);
       // Clear cookie immediately
       document.cookie = "wasLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
@@ -44,6 +46,7 @@ function SessionGuard({ children }: { children: React.ReactNode }) {
       if (isTabActive) {
         document.cookie = "wasLoggedIn=true; path=/; SameSite=Lax";
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsRedirecting(true);
         document.cookie = "wasLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
         if (pathname.startsWith("/admin")) {

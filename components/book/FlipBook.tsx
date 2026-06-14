@@ -7,13 +7,11 @@ import {
   ChevronRight, 
   Volume2, 
   VolumeX, 
-  Maximize2, 
   Play, 
   Pause, 
   Flame, 
   Compass, 
   Moon, 
-  RotateCcw,
   Sparkles
 } from "lucide-react";
 import { StoryChapter } from "@/types/story";
@@ -23,7 +21,7 @@ import { cn } from "@/lib/utils";
 const playSynthesizedSound = (type: 'flip' | 'open' | 'close', isMuted: boolean) => {
   if (isMuted || typeof window === 'undefined') return;
   try {
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    const AudioCtx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
     
@@ -165,6 +163,7 @@ export default function FlipBook({ chapters }: FlipBookProps) {
       }
     }, 4500);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoplay, currentSpread, totalSpreads]);
 
   // Dynamic scale calculation based on container element width
@@ -172,7 +171,7 @@ export default function FlipBook({ chapters }: FlipBookProps) {
     if (typeof window === "undefined" || !containerRef.current) return;
 
     const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         const width = entry.contentRect.width;
         if (width > 0) {
           // Calculate scale to fit inside container with padding
@@ -189,7 +188,7 @@ export default function FlipBook({ chapters }: FlipBookProps) {
     };
   }, []);
 
-  const handleNext = () => {
+  function handleNext() {
     if (isFlipping || currentSpread >= totalSpreads) return;
     
     setIsFlipping(true);
@@ -224,7 +223,7 @@ export default function FlipBook({ chapters }: FlipBookProps) {
     }, timeoutDuration);
   };
 
-  const handlePrev = () => {
+  function handlePrev() {
     if (isFlipping || currentSpread <= 0) return;
     
     setIsFlipping(true);
@@ -605,7 +604,7 @@ export default function FlipBook({ chapters }: FlipBookProps) {
                   </h2>
                   <div className="w-16 h-0.5 bg-gold/55 my-4 mx-auto" />
                   <p className="text-[10px] text-slate-300 italic font-serif max-w-xs leading-relaxed mx-auto">
-                    "Rooted in History, Growing for Generations."
+                    &ldquo;Rooted in History, Growing for Generations.&rdquo;
                   </p>
                 </div>
 
@@ -700,7 +699,7 @@ export default function FlipBook({ chapters }: FlipBookProps) {
                     All historical profiles, migration timelines, and digital assets compiled in this book have been verified and archived under the supervision of the family council.
                   </p>
                   <p className="text-[10px] text-amber-700/60 font-serif italic mt-6">
-                    "Deeply rooted, growing forever."
+                    &ldquo;Deeply rooted, growing forever.&rdquo;
                   </p>
                 </div>
                 
@@ -732,7 +731,7 @@ export default function FlipBook({ chapters }: FlipBookProps) {
                   </h3>
                   <div className="w-10 h-0.5 bg-gold/45 my-3 mx-auto" />
                   <p className="font-serif italic text-slate-300 text-xs">
-                    "Rooted in History, Growing for Generations"
+                    &ldquo;Rooted in History, Growing for Generations&rdquo;
                   </p>
                 </div>
 
@@ -843,7 +842,7 @@ export default function FlipBook({ chapters }: FlipBookProps) {
 
                             <div className="my-auto text-center space-y-4 px-2">
                               <h4 className="font-serif text-sm font-semibold italic text-amber-950 leading-relaxed px-4 text-justify">
-                                "To know where you are going, you must first remember where you came from."
+                                &ldquo;To know where you are going, you must first remember where you came from.&rdquo;
                               </h4>
                               <div className="w-12 h-0.5 bg-amber-700/30 mx-auto" />
                               <p className="text-[11px] leading-relaxed text-amber-800/90 font-serif text-justify">

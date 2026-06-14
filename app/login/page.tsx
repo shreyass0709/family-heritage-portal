@@ -55,7 +55,7 @@ function LoginForm() {
         sessionStorage.setItem("showReveal", "true");
         document.cookie = "showReveal=true; path=/; SameSite=Lax";
       }
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl });
     } catch (err) {
       setError("Failed to initialize Google sign-in. Please try again.");
       console.error(err);
@@ -83,7 +83,7 @@ function LoginForm() {
           document.cookie = "wasLoggedIn=true; path=/; SameSite=Lax";
           document.cookie = "showReveal=true; path=/; SameSite=Lax";
         }
-        window.location.href = "/";
+        window.location.href = callbackUrl;
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

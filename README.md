@@ -6,13 +6,6 @@
 [![React Flow](https://img.shields.io/badge/React_Flow-11.11-00d8ff?logo=react)](https://reactflow.dev/)
 
 A premium, private web platform designed to preserve, visualize, and celebrate the rich history and lineage of the **Madubana Sadasyaru** family (Est. 2005, Navunda). Built with Next.js (App Router), Prisma, Tailwind CSS, and React Flow, this portal acts as a central digital repository for genealogy, historical milestones, and shared memories.
-
-## 📸 Previews
-
-| Homepage Landing | Interactive Family Tree |
-|:---:|:---:|
-| <img src="public/images/homepage_preview.png" width="450" alt="Homepage Landing"/> | <img src="public/images/family_tree_preview.png" width="450" alt="Interactive Family Tree"/> |
-
 ---
 
 ## 🌟 Key Features
